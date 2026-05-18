@@ -6,16 +6,57 @@ export default function Page() {
 
   const topics = ["S&OP","Inventory","Logistics","Risk"];
 
-  const questionBank = Array.from({ length: 200 }, (_, i) => {
-    const topic = topics[i % topics.length];
-    return {
-      topic,
-      question: `${topic} scenario question #${i+1}`,
-      options: ["Option A","Option B","Option C","Option D"],
-      answer: 1,
-      explanation: "This is the correct decision based on CSCP principles."
-    };
-  });
+  const questionBank = [
+  {
+    topic: "S&OP",
+    question: "A company has frequent mismatch between sales forecasts and production capacity. What is the BEST action?",
+    options: [
+      "Increase production capacity",
+      "Implement cross-functional S&OP process",
+      "Reduce forecast frequency",
+      "Increase inventory levels"
+    ],
+    answer: 1,
+    explanation: "S&OP aligns demand and supply across functions to reduce mismatch."
+  },
+  {
+    topic: "Inventory",
+    question: "Demand variability is causing frequent stockouts. What is the BEST solution?",
+    options: [
+      "Reduce reorder point",
+      "Increase safety stock",
+      "Eliminate safety stock",
+      "Increase EOQ significantly"
+    ],
+    answer: 1,
+    explanation: "Safety stock buffers demand uncertainty and protects service levels."
+  },
+  {
+    topic: "Logistics",
+    question: "A company is experiencing late deliveries due to ocean shipping delays. What is the BEST option?",
+    options: [
+      "Shift entirely to air freight",
+      "Use a blended transportation strategy",
+      "Increase shipment sizes",
+      "Reduce order frequency"
+    ],
+    answer: 1,
+    explanation: "Blended transport balances cost and speed."
+  },
+  {
+    topic: "Risk",
+    question: "A critical supplier is in a politically unstable region. What is the BEST mitigation?",
+    options: [
+      "Increase order quantities",
+      "Implement dual sourcing",
+      "Reduce inventory",
+      "Change transportation mode"
+    ],
+    answer: 1,
+    explanation: "Dual sourcing reduces dependency risk."
+  }
+];
+
 
   const [mode,setMode]=useState("study");
   const [current,setCurrent]=useState(0);
