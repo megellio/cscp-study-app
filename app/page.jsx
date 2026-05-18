@@ -2,240 +2,270 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 
-// ===================== CSCP SYSTEM (EXAM-LEVEL QUESTIONS) =====================
-// ✅ Variable scenarios
-// ✅ Variable correct answers
-// ✅ Trick/distractor answers
-
-
 const topics = ["S&OP","Inventory","Logistics","Risk"];
 
-// ---------- ADVANCED QUESTION GENERATOR ----------
+// ---------- STUDY BANK ----------
 const buildStudyBank = () => {
+  const scenarios = {
+    "S&OP": [
+      "Forecasts exceed demand",
+      "Capacity cannot meet demand",
+      "Sales and operations misaligned",
+      "Inventory imbalance across regions",
+      "Financial mismatch with supply"
+    ],
+    "Inventory": [
+      "Stockouts increasing",
+      "Carrying costs rising",
+      "Demand variability high",
+      "Lead time instability",
+      "Warehouse constraints"
+    ],
+    "Logistics": [
+      "Late deliveries",
+      "High freight costs",
+      "Customer complaints",
+      "Global delays",
+      "Poor distribution network"
+    ],
+    "Risk": [
+      "Supplier disruption",
+      "Single-source risk",
+      "Geopolitical instability",
+      "Natural disaster exposure",
+      "Supply continuity issues"
+    ]
+  };
 
+  const strategies = [
+    { text: "Increase safety stock", correctFor: ["Inventory"] },
+    { text: "Align cross-functional planning", correctFor: ["S&OP"] },
+    { text: "Implement dual sourcing", correctFor: ["Risk"] },
+    { text: "Use blended transportation", correctFor: ["Logistics"] },
+    { text: "Reduce planning", correctFor: [] },
+    { text: "Increase batch sizes", correctFor: [] }
+  ];
 
-  const scenarios = {
-    "S&OP": [
-      "Forecasts exceed actual demand",
-      "Production cannot meet demand peaks",
-      "Sales and operations plans conflict",
-      "Inventory imbalances across regions",
-      "Financial plans misaligned with supply plans"
-    ],
+  return topics.flatMap(topic =>
+    Array.from({ length: 30 }, (_, i) => {
+      const scenario = scenarios[topic][i % scenarios[topic].length];
+      const opts = [...strategies].sort(() => Math.random() - 0.5).slice(0, 4);
+      const correctIndex = opts.findIndex(o => o.correctFor.includes(topic));
 
-
-    "Inventory": [
-      "Stockouts are increasing",
-      "Inventory costs are rising",
-      "Demand variability is high",
-      "Lead times are unstable",
-      "Warehouse capacity is constrained"
-    ],
-
-
-    "Logistics": [
-      "Late deliveries increasing",
-      "Freight costs rising",
-      "Customer complaints rising",
-      "Global shipping delays",
-      "Inefficient distribution network"
-    ],
-
-
-    "Risk": [
-      "Supplier in unstable region",
-      "Frequent supply disruptions",
-      "Single-source dependency",
-      "Natural disaster exposure",
-      "Geopolitical instability"
-    ]
-  };
-
-
-  const strategies = [
-    { text: "Increase inventory buffers", correctFor: ["Inventory"] },
-    { text: "Improve cross-functional coordination", correctFor: ["S&OP"] },
-    { text: "Implement dual sourcing", correctFor: ["Risk"] },
-    { text: "Use blended transportation strategy", correctFor: ["Logistics"] },
-    { text: "Reduce planning frequency", correctFor: [] },
-    { text: "Increase order quantities", correctFor: [] }
-  ];
-
-
-  return topics.flatMap(topic =>
-    Array.from({ length: 30 }, (_, i) => {
-
-
-      const scenario = scenarios[topic][i % scenarios[topic].length];
-
-
-      // shuffle options
-      const shuffled = [...strategies].sort(() => Math.random() - 0.5).slice(0,4);
-
-
-      // find correct answer
-      const correctIndex = shuffled.findIndex(s => s.correctFor.includes(topic));
-
-
-      return {
-        id: `${topic}-${i}`,
-        topic,
-        question: `(${topic}) Scenario ${i + 1}: ${scenario}. What is the BEST action?`,
-        options: shuffled.map(s => s.text),
-        answer: correctIndex,
-        explanation: `Best answer aligns with ${topic} principle: ${shuffled[correctIndex]?.text || "coordination strategy"}.`
-      };
-
-
-    })
-  );
+      return {
+        id: `${topic}-${i}`,
+        topic,
+        question: `${scenario}. What is the BEST action?`,
+        options: opts.map(o => o.text),
+        answer: correctIndex,
+        explanation: `${topic} issues are best addressed by ${opts[correctIndex]?.text || "cross-functional alignment"}.`
+      };
+    })
+  );
 };
 
 const studyQuestions = buildStudyBank();
 
 // ---------- EXAM BANK ----------
 const examQuestions = Array.from({ length: 150 }, (_, i) => {
-  const topic = topics[i % topics.length];
+  const topic = topics[i % topics.length];
 
+  const baseOptions = [
+    "Increase safety stock",
+    "Align cross-functional planning",
+    "Switch supplier",
+    "Reduce forecasting"
+  ].sort(() => Math.random() - 0.5);
 
-  const options = [
-    "Increase inventory",
-    "Improve coordination",
-    "Change supplier",
-    "Reduce forecasts"
-  ].sort(() => Math.random() - 0.5);
-  const answerMap = {
-    "S&OP": "Improve coordination",
-    "Inventory": "Increase inventory",
-    "Logistics": "Improve coordination",
-    "Risk": "Change supplier"
-  };
+  const correctMap = {
+    "S&OP": "Align cross-functional planning",
+    "Inventory": "Increase safety stock",
+    "Logistics": "Align cross-functional planning",
+    "Risk": "Switch supplier"
+  };
 
-
-  const correct = options.indexOf(answerMap[topic]);
-
-
-  return {
-    id: i,
-    topic,
-    question: `Exam Scenario #${i+1}: A supply chain must balance cost, service, and risk with conflicting objectives. What is the BEST action?`,
-    options,
-    answer: correct
-  };
+  return {
+    id: i,
+    topic,
+    question: `Scenario ${i+1}: Supply chain tradeoffs between cost, service, and risk must be resolved. What is the BEST action?`,
+    options: baseOptions,
+    answer: baseOptions.indexOf(correctMap[topic])
+  };
 });
-
 
 export default function Page() {
 
-  const [mode,setMode]=useState("study");
-  const [module,setModule]=useState("All");
+  const [mode,setMode]=useState("study");
+  const [module,setModule]=useState("All");
 
-  const [current,setCurrent]=useState(0);
-  const [selected,setSelected]=useState(null);
-  const [answers,setAnswers]=useState({});
+  const [current,setCurrent]=useState(0);
+  const [answers,setAnswers]=useState({});
 
-  const [flagged,setFlagged]=useState({});
-  const [submitted,setSubmitted]=useState(false);
+  const [flagged,setFlagged]=useState({});
+  const [submitted,setSubmitted]=useState(false);
+  const [time,setTime]=useState(210*60);
 
-  const [time,setTime]=useState(210*60);
+  // TIMER
+  useEffect(()=>{
+    if(mode !== "exam" || submitted) return;
+    const t=setInterval(()=>setTime(t=>t-1),1000);
+    return ()=>clearInterval(t);
+  },[mode,submitted]);
 
-  useEffect(()=>{
-    if(mode!=="exam"||submitted) return;
-    const t=setInterval(()=>setTime(t=>t-1),1000);
-    return ()=>clearInterval(t);
-  },[mode,submitted]);
+  // FILTERS
+  const studyFiltered = useMemo(()=>{
+    return module === "All"
+      ? studyQuestions
+      : studyQuestions.filter(q=>q.topic===module);
+  },[module]);
 
-  const studyFiltered = useMemo(()=>{
-    if(module==="All") return studyQuestions;
-    return studyQuestions.filter(q=>q.topic===module);
-  },[module]);
+  const reviewQuestions = useMemo(()=>{
+    return examQuestions.filter((q,i)=>answers[i]!==undefined && answers[i]!==q.answer);
+  },[answers]);
 
-  const reviewQuestions = examQuestions.filter((q,i)=>answers[i]!==undefined && answers[i]!==q.answer);
-  const active = mode==="exam"?examQuestions:mode==="review"?reviewQuestions:studyFiltered;
-  const q = active[current];
+  const active =
+    mode === "exam" ? examQuestions :
+    mode === "review" ? reviewQuestions :
+    studyFiltered;
 
-  const answerQ=(i)=>{
-    setSelected(i);
-    if(mode!=="study"){
-      setAnswers(prev=>({...prev,[current]:i}));
-    }
-  };
+  const q = active[current];
 
-  const next=()=>{
-    setCurrent(c=>c+1);
-    setSelected(null);
-  };
+  // ANSWER HANDLER
+  const handleAnswer = (i) => {
 
-  const toggleFlag=()=>{
-    setFlagged(prev=>({...prev,[current]:!prev[current]}));
-  };
+    if(mode === "exam"){
+      if(answers[current] !== undefined) return;
+      setAnswers(prev => ({...prev, [current]: i}));
+      return;
+    }
 
-  const score = Object.keys(answers).filter(i=>answers[i]===examQuestions[i]?.answer).length;
+    // Study + review
+    setAnswers(prev => ({...prev, [current]: i}));
+  };
 
-  const fmt=t=>`${Math.floor(t/3600)}:${Math.floor((t%3600)/60).toString().padStart(2,"0")}`;
+  // NAV
+  const goNext = () => setCurrent(c => Math.min(active.length-1, c+1));
+  const goPrev = () => setCurrent(c => Math.max(0, c-1));
 
-  const progress = topics.map(t=>{
-    const total = examQuestions.filter(q=>q.topic===t).length;
-    const correct = examQuestions.filter(q=>answers[q.id]===q.answer && q.topic===t).length;
-    return {topic:t,pct:Math.round((correct/(total||1))*100)};
-  });
+  const toggleFlag = () => {
+    setFlagged(prev => ({...prev, [current]: !prev[current]}));
+  };
 
-  return (
-    <div style={{padding:20,maxWidth:600,margin:"auto"}}>
+  const score = Object.keys(answers).filter(i=>answers[i]===examQuestions[i]?.answer).length;
 
+  const fmt = t=>`${Math.floor(t/3600)}:${Math.floor((t%3600)/60).toString().padStart(2,"0")}`;
 
-      <h2>CSCP Elite Prep System 🚀</h2>
+  // DASHBOARD
+  const progress = topics.map(topic => {
+    const total = examQuestions.filter(q=>q.topic===topic).length;
+    const correct = examQuestions.filter(q=>answers[q.id]===q.answer && q.topic===topic).length;
+    return {topic, pct: Math.round((correct/(total||1))*100)};
+  });
 
+  return (
+    <div style={{padding:20,maxWidth:600,margin:"auto"}}>
 
-      <div style={{display:"flex",gap:6}}>
-        <button onClick={()=>{setMode("study");setCurrent(0)}}>Study</button>
-        <button onClick={()=>{setMode("review");setCurrent(0)}}>Review</button>
-        <button onClick={()=>{setMode("exam");setCurrent(0)}}>Exam</button>
-      </div>
+      <h2>CSCP Prep System ✅</h2>
 
-      <div>
-        {progress.map(p=>(
-          <p key={p.topic}>{p.topic}: {p.pct}%</p>
-        ))}
-      </div>
+      {/* MODES */}
+      <div style={{display:"flex",gap:6}}>
+        <button onClick={()=>{setMode("study");setCurrent(0)}}>Study</button>
+        <button onClick={()=>{setMode("review");setCurrent(0)}}>Review</button>
+        <button onClick={()=>{setMode("exam");setCurrent(0)}}>Exam</button>
+      </div>
 
-      {mode==="study" && (
-        <select onChange={(e)=>{setModule(e.target.value);setCurrent(0)}}>
-          <option>All</option>
-          {topics.map(t=><option key={t}>{t}</option>)}
-        </select>
-      )}
+      {/* DASHBOARD */}
+      <div>
+        {progress.map(p=>(<p key={p.topic}>{p.topic}: {p.pct}%</p>))}
+      </div>
 
-      {mode==="exam" && !submitted && <p>Time: {fmt(time)}</p>}
-      {q && !submitted && (
-        <div>
-          <p>{q.question}</p>
+      {/* MODULE */}
+      {mode === "study" && (
+        <select onChange={(e)=>{setModule(e.target.value);setCurrent(0)}}>
+          <option>All</option>
+          {topics.map(t=><option key={t}>{t}</option>)}
+        </select>
+      )}
 
-          {q.options.map((o,i)=>(
-            <button key={i}
-              onClick={()=>answerQ(i)}
-              disabled={mode==="exam"&&answers[current]!=undefined}
-              style={{display:"block",margin:5,
-              background: mode!=="exam"&&selected!==null
-                ? i===q.answer?"green":i===selected?"red":"#eee"
-                : "#eee"}}
-            >{o}</button>
-          ))}
+      {/* EXAM HEADER */}
+      {mode === "exam" && !submitted && (
+        <p>Time: {fmt(time)} | Score: {score}/150</p>
+      )}
 
-          {mode!=="exam"&&selected!==null && <p>{q.explanation}</p>}
+      {/* NAV GRID */}
+      {mode === "exam" && !submitted && (
+        <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+          {examQuestions.map((_,i)=>(
+            <button key={i}
+              onClick={()=>setCurrent(i)}
+              style={{
+                width:24,height:24,
+                background: flagged[i] ? "orange" :
+                           answers[i]!==undefined ? "green" : "#eee"
+              }}
+            >{i+1}</button>
+          ))}
+        </div>
+      )}
 
-          <button onClick={()=>setCurrent(Math.max(0,current-1))}>Prev</button>
-          <button onClick={()=>setCurrent(Math.min(active.length-1,current+1))}>Next</button>
-          {mode==='exam'&&<button onClick={toggleFlag}>Flag</button>}
-        </div>
-      )}
+      {/* QUESTION */}
+      {q && !submitted && (
+        <div>
 
-      {mode==='exam'&&submitted && (
-        <div>
-          <h3>Score: {score}/150</h3>
-        </div>
-      )}
+          <p><b>Q{current+1}</b> ({q.topic})</p>
+          <p>{q.question}</p>
 
-    </div>
-  );
+          {q.options.map((o,i)=>(
+            <button key={i}
+              onClick={()=>handleAnswer(i)}
+              style={{
+                display:"block",
+                margin:"6px 0",
+                width:"100%",
+                padding:"10px",
+                background:
+                  mode !== "exam" && answers[current] !== undefined
+                    ? i === q.answer
+                      ? "#4caf50"
+                      : i === answers[current]
+                      ? "#f44336"
+                      : "#eee"
+                    : answers[current] === i
+                    ? "#ccc"
+                    : "#eee"
+              }}
+            >
+              {o}
+            </button>
+          ))}
+
+          {/* Explanation */}
+          {mode !== "exam" && answers[current] !== undefined && (
+            <p><b>Explanation:</b> {q.explanation}</p>
+          )}
+
+          <div style={{display:"flex",gap:6}}>
+            <button onClick={goPrev}>Prev</button>
+            <button onClick={goNext}>Next</button>
+            {mode === "exam" && <button onClick={toggleFlag}>Flag</button>}
+          </div>
+
+          {mode === "exam" && (
+            <button onClick={()=>setSubmitted(true)} style={{marginTop:10}}>
+              Submit Exam
+            </button>
+          )}
+
+        </div>
+      )}
+
+      {/* RESULTS */}
+      {mode === "exam" && submitted && (
+        <div>
+          <h3>Score: {score}/150</h3>
+        </div>
+      )}
+
+    </div>
+  );
 }
